@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Comparison Dashboard</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f5f7fa;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #2d3748;
+            margin-bottom: 30px;
+        }
+        
+        .topic-section {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .topic-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 3px solid #4299e1;
+        }
+        
+        .topic-title {
+            color: #1a202c;
+            font-size: 24px;
+            margin: 0;
+        }
+        
+        .topic-uid {
+            background: #4299e1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: bold;
+            margin-right: 15px;
+        }
+        
+        .toggle-topic-btn {
+            background: #ed8936;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .toggle-topic-btn:hover {
+            background: #dd7324;
+        }
+        
+        .topic-content {
+            display: block;
+        }
+        
+        .topic-content.hidden {
+            display: none;
+        }
+        
+        .email-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        .email-card.best-email {
+            border-color: #48bb78;
+            box-shadow: 0 0 0 3px rgba(72, 187, 120, 0.1);
+        }
+        
+        .best-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #48bb78;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 10;
+        }
+        
+        .email-header {
+            background: #f7fafc;
+            padding: 15px 20px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        
+        .model-name {
+            font-size: 18px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-bottom: 5px;
+        }
+        
+        .score-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+        
+        .overall-score {
+            background: #4299e1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: bold;
+        }
+        
+        .rank {
+            background: #ed8936;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        
+        .email-content {
+            padding: 20px;
+        }
+        
+        .content-section {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .evaluation-section {
+            margin-top: 15px;
+        }
+        
+        .evaluation-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #2d3748;
+        }
+        
+        .checklist-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+        }
+        
+        .checklist-item {
+            display: flex;
+            align-items: center;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .checklist-item.yes {
+            background: #c6f6d5;
+            border-left: 4px solid #48bb78;
+        }
+        
+        .checklist-item.no {
+            background: #fed7d7;
+            border-left: 4px solid #f56565;
+        }
+        
+        .check-icon {
+            margin-right: 8px;
+            font-weight: bold;
+        }
+        
+        .yes .check-icon {
+            color: #48bb78;
+        }
+        
+        .no .check-icon {
+            color: #f56565;
+        }
+        
+        .summary-stats {
+            display: flex;
+            gap: 15px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .stat {
+            background: #edf2f7;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        
+        .toggle-content {
+            cursor: pointer;
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .toggle-content:hover {
+            background: #3182ce;
+        }
+        
+        .content-hidden {
+            display: none;
+        }
+        
+        .loading-container {
+            text-align: center;
+            padding: 50px;
+            font-size: 18px;
+            color: #666;
+        }
+        
+        .error-container {
+            text-align: center;
+            padding: 50px;
+        }
+        
+        .error-box {
+            background: #fed7d7;
+            border: 1px solid #f56565;
+            border-radius: 8px;
+            padding: 20px;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .error-title {
+            color: #742a2a;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: #742a2a;
+            font-size: 14px;
+        }
+        
+        .retry-btn {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #4299e1;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        
+        .retry-btn:hover {
+            background: #3182ce;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📧 Email Comparison Dashboard</h1>
+        <div id="dashboard"></div>
+    </div>
+
+    <script>
+        let emailData = null;
+        
+        // URLs for the complete dataset (multiple options to try)
+        const DATA_URLS = [
+            // 'https://api.allorigins.win/raw?url=https://raw.githubusercontent.com/pladee42/dissertation/refs/heads/main/output/multi_topic_results/20250722_061212/complete_results.json',
+            // 'https://cors-anywhere.herokuapp.com/https://raw.githubusercontent.com/pladee42/dissertation/refs/heads/main/output/multi_topic_results/20250722_061212/complete_results.json',
+            'https://raw.githubusercontent.com/pladee42/dissertation/refs/heads/main/output/multi_topic_results/20250722_061212/complete_results.json'
+        ];
+        
+        async function loadData() {
+            showLoading(true);
+            
+            // Try each URL until one works
+            for (let i = 0; i < DATA_URLS.length; i++) {
+                try {
+                    console.log(`Trying URL ${i + 1}/${DATA_URLS.length}: ${DATA_URLS[i]}`);
+                    const response = await fetch(DATA_URLS[i]);
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    emailData = await response.json();
+                    showLoading(false);
+                    createDashboard();
+                    return; // Success, exit the function
+                } catch (error) {
+                    console.warn(`Failed to load from URL ${i + 1}: ${error.message}`);
+                    if (i === DATA_URLS.length - 1) {
+                        // Last URL failed, show error with instructions
+                        showError(`Failed to load data from all sources. CORS policy prevents direct access to GitHub raw files. 
+                        
+                        <br><br><strong>Solutions:</strong>
+                        <br>1. Download the JSON file and drop it here
+                        <br>2. Use a local server
+                        <br>3. Host the file on a CORS-enabled service
+                        
+                        <br><br><strong>Error:</strong> ${error.message}`);
+                    }
+                }
+            }
+        }
+        
+        function showLoading(show) {
+            const dashboard = document.getElementById('dashboard');
+            if (show) {
+                dashboard.innerHTML = `
+                    <div class="loading-container">
+                        <div style="margin-bottom: 20px;">🔄 Loading email data...</div>
+                        <div style="font-size: 14px;">Fetching data from GitHub repository</div>
+                    </div>
+                `;
+            }
+        }
+        
+        function showError(message) {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = `
+                <div class="error-container">
+                    <div class="error-box">
+                        <div class="error-title">❌ Error Loading Data</div>
+                        <div class="error-message">${message}</div>
+                        <button class="retry-btn" onclick="loadData()">
+                            🔄 Retry
+                        </button>
+                        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid #f56565;">
+                            <div style="font-weight: bold; margin-bottom: 10px;">📁 Load Local File:</div>
+                            <input type="file" id="fileInput" accept=".json" style="margin-bottom: 10px;">
+                            <button onclick="loadLocalFile()" style="display: block; padding: 8px 16px; background: #48bb78; color: white; border: none; border-radius: 4px; cursor: pointer;">
+                                📤 Upload JSON File
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function loadLocalFile() {
+            const fileInput = document.getElementById('fileInput');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                alert('Please select a JSON file first');
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    emailData = JSON.parse(e.target.result);
+                    createDashboard();
+                } catch (error) {
+                    showError(`Invalid JSON file: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function createDashboard() {
+            const dashboard = document.getElementById('dashboard');
+            dashboard.innerHTML = '';
+            
+            if (!emailData || !emailData.results) {
+                showError('Invalid data format received');
+                return;
+            }
+            
+            emailData.results.forEach((topic, topicIndex) => {
+                const topicSection = document.createElement('div');
+                topicSection.className = 'topic-section';
+                
+                const topicUID = topic.topic_uid || `T${String(topicIndex + 1).padStart(4, '0')}`;
+                
+                topicSection.innerHTML = `
+                    <div class="topic-header">
+                        <div style="display: flex; align-items: center;">
+                            <span class="topic-uid">${topicUID}</span>
+                            <h2 class="topic-title">${topic.topic_name || topic.topic}</h2>
+                        </div>
+                        <button class="toggle-topic-btn" onclick="toggleTopic(${topicIndex})">
+                            Show Topic
+                        </button>
+                    </div>
+                    <div class="topic-content hidden" id="topic-content-${topicIndex}">
+                        <!-- Emails will be inserted here -->
+                    </div>
+                `;
+                
+                // Sort emails by rank for better display
+                const sortedEmails = [...topic.emails].sort((a, b) => a.rank - b.rank);
+                
+                const topicContent = topicSection.querySelector(`#topic-content-${topicIndex}`);
+                
+                sortedEmails.forEach((email, emailIndex) => {
+                    const isBestEmail = topic.best_email && email.model_name === topic.best_email.model_name;
+                    
+                    const emailCard = document.createElement('div');
+                    emailCard.className = `email-card ${isBestEmail ? 'best-email' : ''}`;
+                    
+                    emailCard.innerHTML = `
+                        ${isBestEmail ? '<div class="best-badge">🏆 BEST EMAIL</div>' : ''}
+                        
+                        <div class="email-header">
+                            <div class="model-name">${email.model_name}</div>
+                            <div class="score-info">
+                                <span class="overall-score">Score: ${(email.overall_score * 100).toFixed(1)}%</span>
+                                <span class="rank">Rank #${email.rank}</span>
+                            </div>
+                        </div>
+                        
+                        <div class="email-content">
+                            <button class="toggle-content" onclick="toggleContent(${topicIndex}, ${emailIndex})">
+                                Show/Hide Email Content
+                            </button>
+                            <div class="content-section content-hidden" id="content-${topicIndex}-${emailIndex}">
+${email.email_content}
+                            </div>
+                            
+                            <div class="evaluation-section">
+                                <div class="evaluation-title">📊 Evaluation Results</div>
+                                <div class="checklist-grid">
+                                    ${email.evaluation && email.evaluation.checklist_scores ? 
+                                        email.evaluation.checklist_scores.map(score => `
+                                            <div class="checklist-item ${score.result}">
+                                                <span class="check-icon">${score.result === 'yes' ? '✓' : '✗'}</span>
+                                                <span>${score.description}</span>
+                                            </div>
+                                        `).join('') : 
+                                        '<div>No evaluation data available</div>'
+                                    }
+                                </div>
+                                
+                                ${email.evaluation ? `
+                                    <div class="summary-stats">
+                                        <div class="stat">Generation Time: ${email.generation_time ? email.generation_time.toFixed(2) + 's' : 'N/A'}</div>
+                                        <div class="stat">Attempts: ${email.evaluation.generation_attempts || 'N/A'}</div>
+                                        <div class="stat">Confidence: ${email.evaluation.consistency_confidence ? (email.evaluation.consistency_confidence * 100).toFixed(1) + '%' : 'N/A'}</div>
+                                        <div class="stat">Evaluated by: ${email.evaluation.evaluated_by || 'N/A'}</div>
+                                    </div>
+                                    
+                                    <div style="margin-top: 10px;">
+                                        <strong>Strengths:</strong> ${email.evaluation.strengths || 'N/A'}
+                                    </div>
+                                    <div style="margin-top: 5px;">
+                                        <strong>Weaknesses:</strong> ${email.evaluation.weaknesses || 'N/A'}
+                                    </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                    `;
+                    
+                    topicContent.appendChild(emailCard);
+                });
+                
+                dashboard.appendChild(topicSection);
+            });
+        }
+        
+        function toggleContent(topicIndex, emailIndex) {
+            const content = document.getElementById(`content-${topicIndex}-${emailIndex}`);
+            if (content) {
+                content.classList.toggle('content-hidden');
+            }
+        }
+        
+        function toggleTopic(topicIndex) {
+            const content = document.getElementById(`topic-content-${topicIndex}`);
+            const button = content.parentElement.querySelector('.toggle-topic-btn');
+            
+            if (content.classList.contains('hidden')) {
+                content.classList.remove('hidden');
+                button.textContent = 'Hide Topic';
+            } else {
+                content.classList.add('hidden');
+                button.textContent = 'Show Topic';
+            }
+        }
+        
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', loadData);
+    </script>
+</body>
+</html>
